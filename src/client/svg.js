@@ -1,3 +1,5 @@
+import { openFullscreen } from '@fortyfoxes/wiki-capsule'
+
 // Dangerous element tags — stripped entirely from SVG capsules.
 // foreignObject is NOT in this list — Mermaid 11 uses it for labels.
 // Its HTML content is sanitised separately in sanitizeElement.
@@ -71,27 +73,10 @@ const parseSVG = (text) => {
   return svg
 }
 
-// Open a fullscreen overlay showing the given SVG element.
-const openFullscreen = (svgEl) => {
-  const clone = svgEl.cloneNode(true)
-  clone.style.cssText = 'width:90vw;height:90vh;max-width:1400px;object-fit:contain;'
-
-  const overlay = document.createElement('div')
-  overlay.style.cssText = [
-    'position:fixed;top:0;left:0;width:100vw;height:100vh;',
-    'background:rgba(0,0,0,0.88);z-index:10000;',
-    'display:flex;align-items:center;justify-content:center;',
-    'cursor:zoom-out;',
-  ].join('')
-
-  overlay.appendChild(clone)
-  document.body.appendChild(overlay)
-
-  const close = () => overlay.remove()
-  overlay.addEventListener('click', close)
-  const escHandler = (e) => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', escHandler) } }
-  document.addEventListener('keydown', escHandler)
-}
+// Fullscreen comes from the shared capsule. This file used to carry its own
+// byte-identical copy, which is why the backdrop had to be fixed in two places
+// and was fixed in one. A capsule carries its own background, so the default
+// PAPER card reads as a mount around it.
 
 // Dispatch a data-fedwiki-action from a clicked element.
 const dispatchAction = (actionEl, e, $page) => {

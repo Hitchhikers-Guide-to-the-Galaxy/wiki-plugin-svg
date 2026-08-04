@@ -1,16 +1,21 @@
 {
   "name": "wiki-plugin-svg",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Safe SVG capsule viewer for Federated Wiki — sanitises, scales to column, expands fullscreen, and dispatches data-fedwiki-action clicks as wiki navigation.",
   "type": "module",
   "main": "client/svg.js",
-  "files": ["client", "pages", "factory.json"],
+  "files": [
+    "client",
+    "pages",
+    "factory.json"
+  ],
   "scripts": {
     "build": "node scripts/build.js",
     "test": "node --test test/*.test.js"
   },
   "devDependencies": {
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.25.0",
+    "@fortyfoxes/wiki-capsule": "^0.1.0"
   },
   "author": "David Bovill",
   "license": "MIT",
