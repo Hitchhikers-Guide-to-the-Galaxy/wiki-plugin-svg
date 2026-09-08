@@ -35,7 +35,7 @@
   {
    "type": "markdown",
    "id": "5809c80e62a2e6c6",
-   "text": "The caption is drawn immediately, before and independently of the fetch, and is resolved by the wiki, so `[[internal]]` and `[url label]` links work in it. If the fetch fails the caption still reads and the capsule says which URL failed and why."
+   "text": "The caption is drawn immediately, before and independently of the fetch, and is resolved by the wiki, so `[[internal]\u200b]` and `[url label]` links work in it. If the fetch fails the caption still reads and the capsule says which URL failed and why."
   },
   {
    "type": "markdown",
