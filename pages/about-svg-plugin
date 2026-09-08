@@ -1,130 +1,165 @@
 {
-  "title": "About SVG Plugin",
-  "plugin": "svg",
-  "story": [
-    {
+ "title": "About SVG Plugin",
+ "plugin": "svg",
+ "story": [
+  {
+   "type": "markdown",
+   "id": "6c94ed71d7ecae80",
+   "text": "Safe SVG capsule viewer for Federated Wiki. Sanitises incoming SVG, scales it to the wiki column, expands to fullscreen on click, and dispatches `data-fedwiki-action` attributes as wiki navigation. Give it SVG source, or a `SRC` line naming a URL and it fetches the file for you."
+  },
+  {
+   "type": "svg",
+   "id": "c662201de90ab102",
+   "text": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 120\">\n  <rect x=\"10\" y=\"10\" width=\"110\" height=\"40\" rx=\"6\" fill=\"#4a9eff\" opacity=\"0.85\"/>\n  <text x=\"65\" y=\"35\" text-anchor=\"middle\" fill=\"white\" font-family=\"sans-serif\" font-size=\"13\">Authoring Plugin</text>\n  <rect x=\"145\" y=\"10\" width=\"110\" height=\"40\" rx=\"6\" fill=\"#4aaa55\" opacity=\"0.85\"/>\n  <text x=\"200\" y=\"35\" text-anchor=\"middle\" fill=\"white\" font-family=\"sans-serif\" font-size=\"13\">Render Broker</text>\n  <rect x=\"280\" y=\"10\" width=\"110\" height=\"40\" rx=\"6\" fill=\"#e07b39\" opacity=\"0.85\"\n    data-fedwiki-action=\"open-page\" data-fedwiki-page=\"SVG Capsules\"/>\n  <text x=\"335\" y=\"35\" text-anchor=\"middle\" fill=\"white\" font-family=\"sans-serif\" font-size=\"13\"\n    data-fedwiki-action=\"open-page\" data-fedwiki-page=\"SVG Capsules\">SVG Capsule \u2197</text>\n  <line x1=\"120\" y1=\"30\" x2=\"145\" y2=\"30\" stroke=\"#666\" stroke-width=\"2\" marker-end=\"url(#arr)\"/>\n  <line x1=\"255\" y1=\"30\" x2=\"280\" y2=\"30\" stroke=\"#666\" stroke-width=\"2\" marker-end=\"url(#arr)\"/>\n  <defs>\n    <marker id=\"arr\" markerWidth=\"6\" markerHeight=\"6\" refX=\"6\" refY=\"3\" orient=\"auto\">\n      <path d=\"M0,0 L6,3 L0,6 Z\" fill=\"#666\"/>\n    </marker>\n  </defs>\n  <text x=\"200\" y=\"90\" text-anchor=\"middle\" fill=\"#555\" font-family=\"sans-serif\" font-size=\"11\">Click the orange node to open SVG Capsules \u00b7 Click background to expand fullscreen</text>\n</svg>"
+  },
+  {
+   "type": "markdown",
+   "id": "9f0338790b923216",
+   "text": "## Item Text"
+  },
+  {
+   "type": "markdown",
+   "id": "f803aafcab952ed5",
+   "text": "Either raw SVG source, or a small DSL. Anything beginning with `<` is treated as source. Otherwise an UPPERCASE first word names a command and every other line is the caption."
+  },
+  {
+   "type": "code",
+   "id": "c61cae5b1808db40",
+   "text": "SRC https://example.org/assets/map/city.svg\nThe city at dawn. See [[Front Cover]] and [https://example.org/assets/map/city.json map.json]."
+  },
+  {
+   "type": "markdown",
+   "id": "8fe8e2a766cf7ddd",
+   "text": "`SRC` takes an absolute or a relative URL. The fetched text goes through the same parser and sanitiser as pasted source, so clicks, fullscreen and `data-fedwiki-action` behave identically. Fetching keeps the page small: a map of a few thousand nodes is megabytes as source and one line as a `SRC`, and redrawing it means overwriting one asset rather than editing every page that shows it. The asset must be served with CORS headers if it lives on another site, which a federated wiki does for its own assets."
+  },
+  {
+   "type": "markdown",
+   "id": "5809c80e62a2e6c6",
+   "text": "The caption is drawn immediately, before and independently of the fetch, and is resolved by the wiki, so `[[internal]]` and `[url label]` links work in it. If the fetch fails the caption still reads and the capsule says which URL failed and why."
+  },
+  {
+   "type": "markdown",
+   "id": "c7ad0937275f7aa0",
+   "text": "## When it cannot draw"
+  },
+  {
+   "type": "markdown",
+   "id": "f364dcf94237dc52",
+   "text": "An item that fails to render names the plugin, shows the text it was given, and says that double-clicking opens the editor. The editor is bound whether or not anything drew, so an item is never left unreadable and unfixable."
+  },
+  {
+   "type": "markdown",
+   "id": "92b98de352e53169",
+   "text": "## Safety"
+  },
+  {
+   "type": "markdown",
+   "id": "8f21e4663b63020a",
+   "text": "The plugin sanitises every SVG before rendering. It strips `<script>`, `<foreignObject>`, and inline event handlers (`onclick`, `onmouseover`, etc.). Remote `href` and `xlink:href` on `<use>`, `<image>`, and `<feImage>` are removed. The SVG declares affordances; the plugin interprets them \u2014 no code runs inside the SVG itself."
+  },
+  {
+   "type": "markdown",
+   "id": "8285188ebe7b3205",
+   "text": "## Wiki Affordances"
+  },
+  {
+   "type": "markdown",
+   "id": "9fdf1fe7e39cef01",
+   "text": "SVG elements carrying `data-fedwiki-action=\"open-page\"` open a wiki page when clicked. Optionally specify a remote site with `data-fedwiki-site`."
+  },
+  {
+   "type": "code",
+   "id": "d39b342be3c867bf",
+   "text": "<g\n  data-fedwiki-action=\"open-page\"\n  data-fedwiki-page=\"SVG Capsules\"\n  data-fedwiki-site=\"kroki.localhost\">\n  <circle cx=\"60\" cy=\"40\" r=\"8\" fill=\"#e07b39\"/>\n  <text x=\"74\" y=\"44\" font-family=\"sans-serif\" font-size=\"13\">SVG Capsules</text>\n</g>",
+   "language": "xml"
+  },
+  {
+   "type": "markdown",
+   "id": "5b86fd19886f6bb4",
+   "text": "## Scaling and Fullscreen"
+  },
+  {
+   "type": "markdown",
+   "id": "aad58c2982a7131e",
+   "text": "The SVG is scaled to fit the 420px wiki column with `width:100%`. Clicking anywhere that is not a wiki affordance opens a fullscreen dark overlay. Press `Escape` or click to close."
+  },
+  {
+   "type": "markdown",
+   "id": "01d6f2e287644b0c",
+   "text": "## Repositories"
+  },
+  {
+   "type": "markdown",
+   "id": "f6f81f3aad56b5ad",
+   "text": "- [GitHub \u2014 wiki-plugin-svg](https://github.com/Hitchhikers-Guide-to-the-Galaxy/wiki-plugin-svg)\n- [npm \u2014 wiki-plugin-svg](https://www.npmjs.com/package/wiki-plugin-svg)"
+  }
+ ],
+ "journal": [
+  {
+   "type": "create",
+   "item": {
+    "title": "About SVG Plugin",
+    "story": [
+     {
       "type": "markdown",
       "id": "6c94ed71d7ecae80",
-      "text": "Safe SVG capsule viewer for Federated Wiki. Sanitises incoming SVG, scales it to the 420px column, expands to fullscreen on click, and dispatches `data-fedwiki-action` attributes as wiki navigation — the display layer of the [[Visual Plugin Family]]."
-    },
-    {
+      "text": "Safe SVG capsule viewer for Federated Wiki. Sanitises incoming SVG, scales it to the 420px column, expands to fullscreen on click, and dispatches `data-fedwiki-action` attributes as wiki navigation \u2014 the display layer of the [[Visual Plugin Family]]."
+     },
+     {
       "type": "svg",
       "id": "c662201de90ab102",
-      "text": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 120\">\n  <rect x=\"10\" y=\"10\" width=\"110\" height=\"40\" rx=\"6\" fill=\"#4a9eff\" opacity=\"0.85\"/>\n  <text x=\"65\" y=\"35\" text-anchor=\"middle\" fill=\"white\" font-family=\"sans-serif\" font-size=\"13\">Authoring Plugin</text>\n  <rect x=\"145\" y=\"10\" width=\"110\" height=\"40\" rx=\"6\" fill=\"#4aaa55\" opacity=\"0.85\"/>\n  <text x=\"200\" y=\"35\" text-anchor=\"middle\" fill=\"white\" font-family=\"sans-serif\" font-size=\"13\">Render Broker</text>\n  <rect x=\"280\" y=\"10\" width=\"110\" height=\"40\" rx=\"6\" fill=\"#e07b39\" opacity=\"0.85\"\n    data-fedwiki-action=\"open-page\" data-fedwiki-page=\"SVG Capsules\"/>\n  <text x=\"335\" y=\"35\" text-anchor=\"middle\" fill=\"white\" font-family=\"sans-serif\" font-size=\"13\"\n    data-fedwiki-action=\"open-page\" data-fedwiki-page=\"SVG Capsules\">SVG Capsule ↗</text>\n  <line x1=\"120\" y1=\"30\" x2=\"145\" y2=\"30\" stroke=\"#666\" stroke-width=\"2\" marker-end=\"url(#arr)\"/>\n  <line x1=\"255\" y1=\"30\" x2=\"280\" y2=\"30\" stroke=\"#666\" stroke-width=\"2\" marker-end=\"url(#arr)\"/>\n  <defs>\n    <marker id=\"arr\" markerWidth=\"6\" markerHeight=\"6\" refX=\"6\" refY=\"3\" orient=\"auto\">\n      <path d=\"M0,0 L6,3 L0,6 Z\" fill=\"#666\"/>\n    </marker>\n  </defs>\n  <text x=\"200\" y=\"90\" text-anchor=\"middle\" fill=\"#555\" font-family=\"sans-serif\" font-size=\"11\">Click the orange node to open SVG Capsules · Click background to expand fullscreen</text>\n</svg>"
-    },
-    {
+      "text": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 120\">\n  <rect x=\"10\" y=\"10\" width=\"110\" height=\"40\" rx=\"6\" fill=\"#4a9eff\" opacity=\"0.85\"/>\n  <text x=\"65\" y=\"35\" text-anchor=\"middle\" fill=\"white\" font-family=\"sans-serif\" font-size=\"13\">Authoring Plugin</text>\n  <rect x=\"145\" y=\"10\" width=\"110\" height=\"40\" rx=\"6\" fill=\"#4aaa55\" opacity=\"0.85\"/>\n  <text x=\"200\" y=\"35\" text-anchor=\"middle\" fill=\"white\" font-family=\"sans-serif\" font-size=\"13\">Render Broker</text>\n  <rect x=\"280\" y=\"10\" width=\"110\" height=\"40\" rx=\"6\" fill=\"#e07b39\" opacity=\"0.85\"\n    data-fedwiki-action=\"open-page\" data-fedwiki-page=\"SVG Capsules\"/>\n  <text x=\"335\" y=\"35\" text-anchor=\"middle\" fill=\"white\" font-family=\"sans-serif\" font-size=\"13\"\n    data-fedwiki-action=\"open-page\" data-fedwiki-page=\"SVG Capsules\">SVG Capsule \u2197</text>\n  <line x1=\"120\" y1=\"30\" x2=\"145\" y2=\"30\" stroke=\"#666\" stroke-width=\"2\" marker-end=\"url(#arr)\"/>\n  <line x1=\"255\" y1=\"30\" x2=\"280\" y2=\"30\" stroke=\"#666\" stroke-width=\"2\" marker-end=\"url(#arr)\"/>\n  <defs>\n    <marker id=\"arr\" markerWidth=\"6\" markerHeight=\"6\" refX=\"6\" refY=\"3\" orient=\"auto\">\n      <path d=\"M0,0 L6,3 L0,6 Z\" fill=\"#666\"/>\n    </marker>\n  </defs>\n  <text x=\"200\" y=\"90\" text-anchor=\"middle\" fill=\"#555\" font-family=\"sans-serif\" font-size=\"11\">Click the orange node to open SVG Capsules \u00b7 Click background to expand fullscreen</text>\n</svg>"
+     },
+     {
       "type": "markdown",
       "id": "92b98de352e53169",
       "text": "## Safety"
-    },
-    {
+     },
+     {
       "type": "markdown",
       "id": "8f21e4663b63020a",
-      "text": "The plugin sanitises every SVG before rendering. It strips `<script>`, `<foreignObject>`, and inline event handlers (`onclick`, `onmouseover`, etc.). Remote `href` and `xlink:href` on `<use>`, `<image>`, and `<feImage>` are removed. The SVG declares affordances; the plugin interprets them — no code runs inside the SVG itself."
-    },
-    {
+      "text": "The plugin sanitises every SVG before rendering. It strips `<script>`, `<foreignObject>`, and inline event handlers (`onclick`, `onmouseover`, etc.). Remote `href` and `xlink:href` on `<use>`, `<image>`, and `<feImage>` are removed. The SVG declares affordances; the plugin interprets them \u2014 no code runs inside the SVG itself."
+     },
+     {
       "type": "markdown",
       "id": "8285188ebe7b3205",
       "text": "## Wiki Affordances"
-    },
-    {
+     },
+     {
       "type": "markdown",
       "id": "9fdf1fe7e39cef01",
       "text": "SVG elements carrying `data-fedwiki-action=\"open-page\"` open a wiki page when clicked. Optionally specify a remote site with `data-fedwiki-site`."
-    },
-    {
+     },
+     {
       "type": "code",
       "id": "d39b342be3c867bf",
       "text": "<g\n  data-fedwiki-action=\"open-page\"\n  data-fedwiki-page=\"SVG Capsules\"\n  data-fedwiki-site=\"kroki.localhost\">\n  <circle cx=\"60\" cy=\"40\" r=\"8\" fill=\"#e07b39\"/>\n  <text x=\"74\" y=\"44\" font-family=\"sans-serif\" font-size=\"13\">SVG Capsules</text>\n</g>",
       "language": "xml"
-    },
-    {
+     },
+     {
       "type": "markdown",
       "id": "5b86fd19886f6bb4",
       "text": "## Scaling and Fullscreen"
-    },
-    {
+     },
+     {
       "type": "markdown",
       "id": "aad58c2982a7131e",
       "text": "The SVG is scaled to fit the 420px wiki column with `width:100%`. Clicking anywhere that is not a wiki affordance opens a fullscreen dark overlay. Press `Escape` or click to close."
-    },
-    {
+     },
+     {
       "type": "markdown",
       "id": "01d6f2e287644b0c",
       "text": "## Repositories"
-    },
-    {
+     },
+     {
       "type": "markdown",
       "id": "f6f81f3aad56b5ad",
-      "text": "- [GitHub — wiki-plugin-svg](https://github.com/Hitchhikers-Guide-to-the-Galaxy/wiki-plugin-svg)\n- [npm — wiki-plugin-svg](https://www.npmjs.com/package/wiki-plugin-svg)"
-    }
-  ],
-  "journal": [
-    {
-      "type": "create",
-      "item": {
-        "title": "About SVG Plugin",
-        "story": [
-          {
-            "type": "markdown",
-            "id": "6c94ed71d7ecae80",
-            "text": "Safe SVG capsule viewer for Federated Wiki. Sanitises incoming SVG, scales it to the 420px column, expands to fullscreen on click, and dispatches `data-fedwiki-action` attributes as wiki navigation — the display layer of the [[Visual Plugin Family]]."
-          },
-          {
-            "type": "svg",
-            "id": "c662201de90ab102",
-            "text": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 120\">\n  <rect x=\"10\" y=\"10\" width=\"110\" height=\"40\" rx=\"6\" fill=\"#4a9eff\" opacity=\"0.85\"/>\n  <text x=\"65\" y=\"35\" text-anchor=\"middle\" fill=\"white\" font-family=\"sans-serif\" font-size=\"13\">Authoring Plugin</text>\n  <rect x=\"145\" y=\"10\" width=\"110\" height=\"40\" rx=\"6\" fill=\"#4aaa55\" opacity=\"0.85\"/>\n  <text x=\"200\" y=\"35\" text-anchor=\"middle\" fill=\"white\" font-family=\"sans-serif\" font-size=\"13\">Render Broker</text>\n  <rect x=\"280\" y=\"10\" width=\"110\" height=\"40\" rx=\"6\" fill=\"#e07b39\" opacity=\"0.85\"\n    data-fedwiki-action=\"open-page\" data-fedwiki-page=\"SVG Capsules\"/>\n  <text x=\"335\" y=\"35\" text-anchor=\"middle\" fill=\"white\" font-family=\"sans-serif\" font-size=\"13\"\n    data-fedwiki-action=\"open-page\" data-fedwiki-page=\"SVG Capsules\">SVG Capsule ↗</text>\n  <line x1=\"120\" y1=\"30\" x2=\"145\" y2=\"30\" stroke=\"#666\" stroke-width=\"2\" marker-end=\"url(#arr)\"/>\n  <line x1=\"255\" y1=\"30\" x2=\"280\" y2=\"30\" stroke=\"#666\" stroke-width=\"2\" marker-end=\"url(#arr)\"/>\n  <defs>\n    <marker id=\"arr\" markerWidth=\"6\" markerHeight=\"6\" refX=\"6\" refY=\"3\" orient=\"auto\">\n      <path d=\"M0,0 L6,3 L0,6 Z\" fill=\"#666\"/>\n    </marker>\n  </defs>\n  <text x=\"200\" y=\"90\" text-anchor=\"middle\" fill=\"#555\" font-family=\"sans-serif\" font-size=\"11\">Click the orange node to open SVG Capsules · Click background to expand fullscreen</text>\n</svg>"
-          },
-          {
-            "type": "markdown",
-            "id": "92b98de352e53169",
-            "text": "## Safety"
-          },
-          {
-            "type": "markdown",
-            "id": "8f21e4663b63020a",
-            "text": "The plugin sanitises every SVG before rendering. It strips `<script>`, `<foreignObject>`, and inline event handlers (`onclick`, `onmouseover`, etc.). Remote `href` and `xlink:href` on `<use>`, `<image>`, and `<feImage>` are removed. The SVG declares affordances; the plugin interprets them — no code runs inside the SVG itself."
-          },
-          {
-            "type": "markdown",
-            "id": "8285188ebe7b3205",
-            "text": "## Wiki Affordances"
-          },
-          {
-            "type": "markdown",
-            "id": "9fdf1fe7e39cef01",
-            "text": "SVG elements carrying `data-fedwiki-action=\"open-page\"` open a wiki page when clicked. Optionally specify a remote site with `data-fedwiki-site`."
-          },
-          {
-            "type": "code",
-            "id": "d39b342be3c867bf",
-            "text": "<g\n  data-fedwiki-action=\"open-page\"\n  data-fedwiki-page=\"SVG Capsules\"\n  data-fedwiki-site=\"kroki.localhost\">\n  <circle cx=\"60\" cy=\"40\" r=\"8\" fill=\"#e07b39\"/>\n  <text x=\"74\" y=\"44\" font-family=\"sans-serif\" font-size=\"13\">SVG Capsules</text>\n</g>",
-            "language": "xml"
-          },
-          {
-            "type": "markdown",
-            "id": "5b86fd19886f6bb4",
-            "text": "## Scaling and Fullscreen"
-          },
-          {
-            "type": "markdown",
-            "id": "aad58c2982a7131e",
-            "text": "The SVG is scaled to fit the 420px wiki column with `width:100%`. Clicking anywhere that is not a wiki affordance opens a fullscreen dark overlay. Press `Escape` or click to close."
-          },
-          {
-            "type": "markdown",
-            "id": "01d6f2e287644b0c",
-            "text": "## Repositories"
-          },
-          {
-            "type": "markdown",
-            "id": "f6f81f3aad56b5ad",
-            "text": "- [GitHub — wiki-plugin-svg](https://github.com/Hitchhikers-Guide-to-the-Galaxy/wiki-plugin-svg)\n- [npm — wiki-plugin-svg](https://www.npmjs.com/package/wiki-plugin-svg)"
-          }
-        ]
-      },
-      "date": 1782388800000,
-      "provenance": "Authored by an AI agent — Claude Code (claude-sonnet-4-6) via the [[fedwiki-create-plugin]] skill. [https://claude.com/claude-code Claude Code]"
-    }
-  ]
+      "text": "- [GitHub \u2014 wiki-plugin-svg](https://github.com/Hitchhikers-Guide-to-the-Galaxy/wiki-plugin-svg)\n- [npm \u2014 wiki-plugin-svg](https://www.npmjs.com/package/wiki-plugin-svg)"
+     }
+    ]
+   },
+   "date": 1782388800000,
+   "provenance": "Authored by an AI agent \u2014 Claude Code (claude-sonnet-4-6) via the [[fedwiki-create-plugin]] skill. [https://claude.com/claude-code Claude Code]"
+  }
+ ]
 }
